@@ -6,6 +6,10 @@ Agentless health monitoring for Active Directory domain controllers.
 ADEHM is the monitoring component of the **AD Enterprise Suite**, a growing
 family of Active Directory tooling.
 
+[![PowerShell Gallery](https://img.shields.io/powershellgallery/v/ADEHM)](https://www.powershellgallery.com/packages/ADEHM)
+[![Downloads](https://img.shields.io/powershellgallery/dt/ADEHM)](https://www.powershellgallery.com/packages/ADEHM)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 ![ADEHM HTML report](Docs/images/report.png)
 
 ## Why ADEHM
@@ -39,16 +43,23 @@ configurable thresholds.
 
 ## Quick start
 
+**Option A — PowerShell Gallery (recommended):**
+
 ```powershell
-# 1. Clone and configure
-git clone https://github.com/<you>/ADEHM.git
+Install-Module ADEHM
+# Copy the sample config somewhere writable, then adjust DCs/thresholds/SMTP
+Copy-Item "$(Split-Path (Get-Module ADEHM -ListAvailable).Path)\Config\ADEHM.config.psd1" C:\ADEHM\my.config.psd1
+Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -DemoMode        # dry run, simulated data
+Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
+```
+
+**Option B — Git clone:**
+
+```powershell
+git clone https://github.com/oussangelo/ADEHM.git
 cd ADEHM
 notepad .\Config\ADEHM.config.psd1     # DCs, thresholds, SMTP
-
-# 2. Dry run with simulated data (no network access)
-.\Start-ADEHM.ps1 -DemoMode
-
-# 3. Real run with a least-privilege service account
+.\Start-ADEHM.ps1 -DemoMode             # dry run, simulated data
 .\Start-ADEHM.ps1 -Credential (Get-Credential)
 ```
 

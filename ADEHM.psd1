@@ -1,6 +1,6 @@
 @{
     RootModule        = 'ADEHM.psm1'
-    ModuleVersion     = '1.0.0'
+    ModuleVersion     = '1.0.1'
     GUID              = '216930bd-1250-4625-8d41-09b686a44356'
     Author            = 'Angelo OUSSATCHEDJI'
     Copyright         = '(c) 2026 Angelo OUSSATCHEDJI. MIT License.'
