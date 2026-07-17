@@ -1,0 +1,8 @@
+# Runtime output (created automatically at first run)
+Reports/
+Logs/
+Archive/
+*.log
+
+# Local configuration copies
+Config/*.local.psd1

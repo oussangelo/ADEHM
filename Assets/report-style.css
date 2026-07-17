@@ -1,0 +1,250 @@
+/* =====================================================================
+   ADEHM - HTML report stylesheet
+   Direction: datacenter monitoring console - readable, sober.
+   Freely customizable: this file is re-read at every report generation
+   (Modules/ADEHM.HTML.psm1 -> New-ADEHMHtmlReport).
+   ===================================================================== */
+
+:root {
+  --ink: #101720;
+  --ink-soft: #1b2531;
+  --paper: #eef1f5;
+  --card: #ffffff;
+  --steel: #5b6b7c;
+  --steel-light: #dde3ea;
+  --ok: #1f8a5f;
+  --ok-bg: #e3f5ec;
+  --warn: #b9770e;
+  --warn-bg: #fbf0da;
+  --crit: #b93a3a;
+  --crit-bg: #fbe6e6;
+  --gray: #8a94a0;
+  --gray-bg: #eceff2;
+  --font-head: 'Segoe UI Semibold', 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif;
+  --font-body: 'Segoe UI', -apple-system, Helvetica, Arial, sans-serif;
+  --font-mono: 'Cascadia Mono', 'Consolas', 'SFMono-Regular', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.adehm-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 0 40px 0;
+}
+
+/* --- Header ---------------------------------------------------------- */
+.adehm-header {
+  background: var(--ink);
+  color: #f2f4f7;
+  padding: 28px 32px 22px 32px;
+}
+
+.adehm-header .brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.adehm-header .brand-mark {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: #7fd6ab;
+  border: 1px solid #33455a;
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+
+.adehm-header h1 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: 0.2px;
+}
+
+.adehm-header .subtitle {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #9fb0c3;
+  margin-top: 6px;
+}
+
+/* --- Pulse strip (visual signature) ---------------------------------- */
+.pulse-strip {
+  display: flex;
+  height: 8px;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  margin-top: 18px;
+}
+.pulse-seg { height: 100%; }
+.pulse-ok   { background: var(--ok); }
+.pulse-warn { background: var(--warn); }
+.pulse-crit { background: var(--crit); }
+.pulse-off  { background: #3a4757; }
+
+.pulse-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #9fb0c3;
+}
+.pulse-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.pulse-legend i { width: 8px; height: 8px; display: inline-block; border-radius: 1px; }
+
+/* --- Dashboard cards --------------------------------------------------- */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 24px 32px 4px 32px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--steel-light);
+  border-left: 3px solid var(--ink);
+  padding: 14px 16px;
+}
+.stat-card .stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--steel);
+  font-family: var(--font-head);
+}
+.stat-card .stat-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  margin-top: 4px;
+  color: var(--ink);
+}
+.stat-card.accent-ok    { border-left-color: var(--ok); }
+.stat-card.accent-warn  { border-left-color: var(--warn); }
+.stat-card.accent-crit  { border-left-color: var(--crit); }
+.stat-card.accent-off   { border-left-color: var(--gray); }
+
+/* --- Detail table -------------------------------------------------------- */
+.section-title {
+  font-family: var(--font-head);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--steel);
+  padding: 28px 32px 10px 32px;
+}
+
+.table-wrap {
+  margin: 0 32px;
+  background: var(--card);
+  border: 1px solid var(--steel-light);
+  overflow-x: auto;
+}
+
+table.adehm-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+}
+
+table.adehm-table thead th {
+  background: var(--ink-soft);
+  color: #e8ecf1;
+  font-family: var(--font-head);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 10px;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+table.adehm-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--steel-light);
+  white-space: nowrap;
+}
+
+table.adehm-table tbody tr:hover { background: #f7f9fb; }
+
+td.status-rail {
+  width: 4px;
+  padding: 0;
+  border-bottom: 1px solid var(--steel-light);
+}
+td.status-rail.rail-ok   { background: var(--ok); }
+td.status-rail.rail-warn { background: var(--warn); }
+td.status-rail.rail-crit { background: var(--crit); }
+td.status-rail.rail-off  { background: var(--gray); }
+
+td.col-hostname { font-family: var(--font-head); font-weight: 600; color: var(--ink); }
+
+/* --- Badges ------------------------------------------------------------- */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+.badge-ok   { background: var(--ok-bg);   color: var(--ok); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); }
+.badge-crit { background: var(--crit-bg); color: var(--crit); }
+.badge-gray { background: var(--gray-bg); color: var(--gray); }
+
+/* --- Incidents ----------------------------------------------------------- */
+.incident-list {
+  margin: 0 32px;
+}
+.incident {
+  background: var(--card);
+  border: 1px solid var(--steel-light);
+  border-left: 3px solid var(--crit);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.incident .incident-head {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--crit);
+  margin-bottom: 4px;
+}
+.incident .incident-meta {
+  color: var(--steel);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* --- Footer ----------------------------------------------------------------- */
+.adehm-footer {
+  margin: 28px 32px 0 32px;
+  padding-top: 14px;
+  border-top: 1px solid var(--steel-light);
+  color: var(--steel);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 720px) {
+  .dashboard { grid-template-columns: repeat(2, 1fr); }
+}
