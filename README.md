@@ -80,6 +80,7 @@ Sample output: [example report](Docs/examples/ADEHM_Report_EXAMPLE.html) ·
 - [Installation Guide](Docs/INSTALL.md)
 - [Administration Guide](Docs/ADMIN_GUIDE.md)
 - [Permissions Guide](Docs/PERMISSIONS.md) — the five delegations, hardened-DC edition
+- Deep dive article: [Monitoring Hardened Domain Controllers Without Admin Rights](https://dev.to/oussangelo/monitoring-hardened-domain-controllers-without-admin-rights-the-five-permission-layers-nobody-o3f)
 - [Architecture](Docs/ARCHITECTURE.md)
 - [Changelog](CHANGELOG.md)
 
