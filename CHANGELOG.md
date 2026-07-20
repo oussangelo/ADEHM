@@ -1,5 +1,28 @@
 # Changelog — ADEHM
 
+## [1.0.2] — 2026-07
+
+### Fixed
+- **Config path resolution**: a standalone configuration file (e.g. copied
+  out of a PowerShell Gallery install and kept anywhere) is now correctly
+  used as the base for relative `Reports`/`Logs`/`Archive` paths. Previously,
+  only the standard `<root>\Config\ADEHM.config.psd1` project layout worked;
+  any other location silently resolved output paths too far up the
+  directory tree.
+- **Cross-module function visibility**: internal modules are now imported
+  with `-Global`, fixing a crash (`Write-ADEHMError` not recognized) that
+  occurred specifically when ADEHM was run through the PowerShell Gallery
+  module wrapper (`Install-Module` + `Start-ADEHM`) and an error occurred
+  inside a module other than the one that triggered collection — most
+  commonly a failed mail delivery.
+- **Mail vs. AD service account confusion**: `-Credential` was silently
+  reused both for CIM connections to the domain controllers and for SMTP
+  authentication, which breaks as soon as the mail identity differs from
+  the AD service account (any external provider: Gmail, Office 365
+  consumer, ...). Added an optional `-MailCredential` parameter to
+  `Start-ADEHM.ps1`; when omitted, behavior is unchanged (falls back to
+  `-Credential`), so existing setups keep working as-is.
+
 ## [1.0.0] — 2026-07
 
 First public release. Battle-tested through a full acceptance cycle on a

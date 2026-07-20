@@ -17,9 +17,21 @@
     Default: .\Config\ADEHM.config.psd1
 
 .PARAMETER Credential
-    Service account used for remote CIM connections and SMTP delivery.
-    Must hold the minimal delegations described in Docs/PERMISSIONS.md
-    (least-privilege principle).
+    Service account used for remote CIM connections to the domain
+    controllers. Must hold the minimal delegations described in
+    Docs/PERMISSIONS.md (least-privilege principle).
+
+.PARAMETER MailCredential
+    Credentials used to authenticate to the SMTP server. Optional and only
+    relevant when Config.Mail.Anonymous is $false (default):
+      - Omitted: -Credential is reused for mail, which is correct for
+        relays that trust the AD service account.
+      - Provided: used instead of -Credential, for a mail identity that
+        differs from the AD service account (e.g. Gmail, Office 365
+        consumer, a dedicated mail-only account).
+    For an anonymous internal relay (no credentials expected at all), set
+    Mail.Anonymous = $true in the configuration instead — neither
+    -Credential nor -MailCredential is then needed for mail delivery.
 
 .PARAMETER DemoMode
     Generates simulated data, with no real network connection, to validate
@@ -31,12 +43,16 @@
 
 .EXAMPLE
     .\Start-ADEHM.ps1 -DemoMode
+
+.EXAMPLE
+    .\Start-ADEHM.ps1 -Credential (Get-Credential DOMAIN\svc-adehm) -MailCredential (Get-Credential yourbox@gmail.com)
 #>
 
 [CmdletBinding()]
 param(
     [string]$ConfigPath = (Join-Path $PSScriptRoot 'Config\ADEHM.config.psd1'),
     [System.Management.Automation.PSCredential]$Credential,
+    [System.Management.Automation.PSCredential]$MailCredential,
     [switch]$DemoMode
 )
 
@@ -48,7 +64,14 @@ $startTime = Get-Date
 # ---------------------------------------------------------------------
 $moduleRoot = Join-Path $PSScriptRoot 'Modules'
 Get-ChildItem -Path $moduleRoot -Filter '*.psm1' | ForEach-Object {
-    Import-Module $_.FullName -Force
+    # -Global is required so that functions from one internal module (e.g.
+    # Write-ADEHMError in ADEHM.Logger.psm1) remain visible from inside a
+    # DIFFERENT internal module (e.g. ADEHM.Mail.psm1's catch block).
+    # Without it, this works when Start-ADEHM.ps1 is run directly, but
+    # breaks when invoked through the PowerShell Gallery module wrapper
+    # (Install-Module ADEHM -> Start-ADEHM), because the wrapper's own
+    # module session state changes where a plain Import-Module lands.
+    Import-Module $_.FullName -Force -Global
 }
 
 try {
@@ -75,6 +98,11 @@ try {
 
     $results = New-Object System.Collections.Generic.List[object]
     $svcNames = $config.Services | ForEach-Object { $_.Name }
+
+    if (-not $DemoMode) {
+        $adIdentity = if ($Credential) { $Credential.UserName } else { "$env:USERDOMAIN\$env:USERNAME (current context)" }
+        Write-ADEHMLog -Level INFO -Module Core -Message "AD/CIM identity: $adIdentity"
+    }
 
     foreach ($dc in $dcList) {
 
@@ -251,8 +279,18 @@ try {
             -StartTime $startTime -EndTime $endTime -ErrorLog (Get-ADEHMErrorLog)
     }
 
+    $mailAuth = if ($MailCredential) { $MailCredential } else { $Credential }
+    if ($config.Mail.Anonymous) {
+        Write-ADEHMLog -Level INFO -Module Mail -Message 'SMTP identity: none (anonymous relay, Mail.Anonymous = $true)'
+    }
+    else {
+        $mailIdentity = if ($mailAuth) { $mailAuth.UserName } else { "$env:USERDOMAIN\$env:USERNAME (current context)" }
+        $reused = if (-not $MailCredential -and $Credential) { ' (reused from -Credential; pass -MailCredential to use a different identity)' } else { '' }
+        Write-ADEHMLog -Level INFO -Module Mail -Message "SMTP identity: $mailIdentity$reused"
+    }
+
     $sent = Send-ADEHMReport -Config $config -ReportPath $reportPath -RunDate $startTime `
-        -BodyHtml $emailBody -Credential $Credential
+        -BodyHtml $emailBody -Credential $mailAuth
     if ($sent) {
         Write-ADEHMLog -Level INFO -Module Mail -Message 'Mail Sent'
     }

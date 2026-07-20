@@ -107,6 +107,8 @@ function New-ADEHMHtmlReport {
         [Parameter(Mandatory)] [datetime]$EndTime,
         [AllowNull()]
         [System.Collections.Generic.List[object]]$ErrorLog,
+        [AllowNull()]
+        [System.Collections.Generic.List[object]]$PluginResults,
         [Parameter(Mandatory)] [string]$OutputPath
     )
 
@@ -190,6 +192,48 @@ function New-ADEHMHtmlReport {
             $railClass, $row.Hostname, $remainingTds))
     }
 
+    # --- Plugin sections ---------------------------------------------------
+    # Each plugin returns: Name, optional Summary, and Rows = objects with
+    # Hostname + Cells (ordered dictionary label -> @{ Text; Status }) where
+    # Status is one of OK / WARN / CRIT / NA / INFO.
+    $pluginHtml = ''
+    if ($PluginResults -and $PluginResults.Count -gt 0) {
+        $statusClass = @{ OK = 'badge-ok'; WARN = 'badge-warn'; CRIT = 'badge-crit'; NA = 'badge-gray'; INFO = 'badge-gray' }
+        foreach ($plugin in $PluginResults) {
+            if (-not $plugin.Rows -or $plugin.Rows.Count -eq 0) { continue }
+            $labels = @($plugin.Rows[0].Cells.Keys)
+            $pHeader = "<th></th><th>Hostname</th>" + (($labels | ForEach-Object { "<th>$_</th>" }) -join '')
+            $pRows = foreach ($r in $plugin.Rows) {
+                $worst = 'OK'
+                foreach ($c in $r.Cells.Values) {
+                    if ($c.Status -eq 'CRIT') { $worst = 'CRIT'; break }
+                    elseif ($c.Status -eq 'WARN' -and $worst -ne 'CRIT') { $worst = 'WARN' }
+                }
+                $rail = switch ($worst) { 'CRIT' { 'rail-crit' } 'WARN' { 'rail-warn' } default { 'rail-ok' } }
+                $tds = foreach ($label in $labels) {
+                    $cell = $r.Cells[$label]
+                    $cls = $statusClass[[string]$cell.Status]
+                    if (-not $cls) { $cls = 'badge-gray' }
+                    "<td><span class=""badge $cls"">$($cell.Text)</span></td>"
+                }
+                '<tr><td class="status-rail {0}"></td><td class="col-hostname">{1}</td>{2}</tr>' -f $rail, $r.Hostname, ($tds -join '')
+            }
+            $summaryHtml = if ($plugin.Summary) { "<div style=""margin:0 32px 10px 32px;font-size:13px;color:#5b6b7c;"">$($plugin.Summary)</div>" } else { '' }
+            $pluginHtml += @"
+<div class="section-title">$($plugin.Name)</div>
+$summaryHtml
+<div class="table-wrap">
+  <table class="adehm-table">
+    <thead><tr>$pHeader</tr></thead>
+    <tbody>
+      $($pRows -join "`n")
+    </tbody>
+  </table>
+</div>
+"@
+        }
+    }
+
     # --- Incident section -------------------------------------------------
     $incidentsHtml = ''
     if ($ErrorLog.Count -gt 0) {
@@ -260,10 +304,12 @@ $css
     </table>
   </div>
 
+  $pluginHtml
+
   $incidentsHtml
 
   <div class="adehm-footer">
-    <span>ADEHM v1.0 &middot; Active Directory Enterprise Health Monitor</span>
+    <span>ADEHM &middot; Active Directory Enterprise Health Monitor</span>
     <span>Automatically generated report &mdash; do not reply to this email</span>
   </div>
 
@@ -299,7 +345,9 @@ function New-ADEHMEmailReport {
         [Parameter(Mandatory)] [datetime]$StartTime,
         [Parameter(Mandatory)] [datetime]$EndTime,
         [AllowNull()]
-        [System.Collections.Generic.List[object]]$ErrorLog
+        [System.Collections.Generic.List[object]]$ErrorLog,
+        [AllowNull()]
+        [System.Collections.Generic.List[object]]$PluginResults
     )
 
     if ($null -eq $ErrorLog) { $ErrorLog = New-Object System.Collections.Generic.List[object] }
@@ -401,6 +449,35 @@ function New-ADEHMEmailReport {
         '</tr>'
     }
 
+    # --- Plugin sections (email rendering) --------------------------------------
+    $pluginEmailHtml = ''
+    if ($PluginResults -and $PluginResults.Count -gt 0) {
+        $emailStatus = @{
+            OK   = @{ Fg = $okFg; Bg = $okBg }
+            WARN = @{ Fg = $wFg;  Bg = $wBg }
+            CRIT = @{ Fg = $cFg;  Bg = $cBg }
+            NA   = @{ Fg = $gFg;  Bg = $gBg }
+            INFO = @{ Fg = $gFg;  Bg = $gBg }
+        }
+        foreach ($plugin in $PluginResults) {
+            if (-not $plugin.Rows -or $plugin.Rows.Count -eq 0) { continue }
+            $labels = @($plugin.Rows[0].Cells.Keys)
+            $pHeaderTds = ("<td bgcolor=""$inkSoft"" style=""$font font-size:10px;color:#e8ecf1;font-weight:bold;text-transform:uppercase;padding:7px 6px;white-space:nowrap;"">Hostname</td>") + `
+                (($labels | ForEach-Object { "<td bgcolor=""$inkSoft"" style=""$font font-size:10px;color:#e8ecf1;font-weight:bold;text-transform:uppercase;padding:7px 6px;white-space:nowrap;"">$_</td>" }) -join '')
+            $pBodyRows = foreach ($r in $plugin.Rows) {
+                $tds = foreach ($label in $labels) {
+                    $cell = $r.Cells[$label]
+                    $st = $emailStatus[[string]$cell.Status]
+                    if (-not $st) { $st = $emailStatus['NA'] }
+                    "<td align=""center"" bgcolor=""$($st.Bg)"" style=""$font font-size:11px;color:$($st.Fg);font-weight:bold;padding:5px 6px;border-bottom:1px solid $line;"">$($cell.Text)</td>"
+                }
+                "<tr><td style=""$font font-size:11px;color:$ink;padding:5px 6px;border-bottom:1px solid $line;white-space:nowrap;""><b>$($r.Hostname)</b></td>$($tds -join '')</tr>"
+            }
+            $pSummary = if ($plugin.Summary) { "<tr><td style=""$font font-size:12px;color:$steel;padding:0 0 6px 0;"">$($plugin.Summary)</td></tr>" } else { '' }
+            $pluginEmailHtml += "<tr><td style=""$font font-size:12px;color:$steel;text-transform:uppercase;letter-spacing:1px;padding:20px 0 8px 0;"">$($plugin.Name)</td></tr>$pSummary<tr><td><table width=""100%"" cellpadding=""0"" cellspacing=""0"" bgcolor=""#ffffff"" style=""border:1px solid $line;""><tr>$pHeaderTds</tr>$($pBodyRows -join '')</table></td></tr>"
+        }
+    }
+
     # --- Incidents ------------------------------------------------------------
     $incidentsHtml = ''
     if ($ErrorLog.Count -gt 0) {
@@ -446,6 +523,8 @@ function New-ADEHMEmailReport {
       $($bodyRows -join "`n")
     </table>
   </td></tr>
+
+  $pluginEmailHtml
 
   $incidentsHtml
 

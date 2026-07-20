@@ -50,8 +50,19 @@ function Import-ADEHMConfig {
     }
 
     # --- Relative path resolution -------------------------------------
-    # The project root is the parent folder of Config/
-    $root = Split-Path -Parent (Split-Path -Parent $Path)
+    # Standard project layout: <root>\Config\ADEHM.config.psd1 -> root is
+    # two levels up. Standalone config file (e.g. copied out of a
+    # PowerShell Gallery install, kept anywhere the user likes): resolve
+    # relative paths against the folder that holds the config file itself,
+    # since there is no project root to infer.
+    $configDir = Split-Path -Parent $Path
+    $twoUp     = Split-Path -Parent $configDir
+    if ($twoUp -and (Split-Path -Leaf $configDir) -eq 'Config') {
+        $root = $twoUp
+    }
+    else {
+        $root = $configDir
+    }
 
     foreach ($pathKey in @('Reports', 'Logs', 'Assets', 'Archive')) {
         if ($config.Paths.ContainsKey($pathKey)) {

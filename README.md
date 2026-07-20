@@ -47,8 +47,15 @@ configurable thresholds.
 
 ```powershell
 Install-Module ADEHM
-# Copy the sample config somewhere writable, then adjust DCs/thresholds/SMTP
-Copy-Item "$(Split-Path (Get-Module ADEHM -ListAvailable).Path)\Config\ADEHM.config.psd1" C:\ADEHM\my.config.psd1
+# Copy the sample config AND the stylesheet somewhere writable, then adjust
+# DCs/thresholds/SMTP. Assets/ must sit next to the config file, or the
+# report falls back to a minimal, unstyled rendering. The trailing \*
+# copies the folder's CONTENTS — safe even if C:\ADEHM\Assets already
+# exists (e.g. auto-created by a previous run); without it, Copy-Item
+# would nest the source folder one level too deep.
+$moduleBase = (Get-Module ADEHM -ListAvailable | Select-Object -First 1).ModuleBase
+Copy-Item "$moduleBase\Config\ADEHM.config.psd1" C:\ADEHM\my.config.psd1
+Copy-Item "$moduleBase\Assets\*" C:\ADEHM\Assets -Recurse -Force
 Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -DemoMode        # dry run, simulated data
 Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
 ```
@@ -56,7 +63,7 @@ Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
 **Option B — Git clone:**
 
 ```powershell
-git clone https://github.com/oussangelo/ADEHM.git
+git clone https://github.com/<you>/ADEHM.git
 cd ADEHM
 notepad .\Config\ADEHM.config.psd1     # DCs, thresholds, SMTP
 .\Start-ADEHM.ps1 -DemoMode             # dry run, simulated data
@@ -65,6 +72,11 @@ notepad .\Config\ADEHM.config.psd1     # DCs, thresholds, SMTP
 
 Sample output: [example report](Docs/examples/ADEHM_Report_EXAMPLE.html) ·
 [example log](Docs/examples/ADEHM_EXAMPLE.log)
+
+Mail identity different from the AD service account (Gmail, Office 365
+consumer) or a fully anonymous internal relay? See
+[SMTP authentication scenarios](Docs/ADMIN_GUIDE.md#7-smtp-authentication-scenarios)
+in the Administration Guide.
 
 ## Requirements
 
@@ -80,7 +92,6 @@ Sample output: [example report](Docs/examples/ADEHM_Report_EXAMPLE.html) ·
 - [Installation Guide](Docs/INSTALL.md)
 - [Administration Guide](Docs/ADMIN_GUIDE.md)
 - [Permissions Guide](Docs/PERMISSIONS.md) — the five delegations, hardened-DC edition
-- Deep dive article: [Monitoring Hardened Domain Controllers Without Admin Rights](https://dev.to/oussangelo/monitoring-hardened-domain-controllers-without-admin-rights-the-five-permission-layers-nobody-o3f)
 - [Architecture](Docs/ARCHITECTURE.md)
 - [Changelog](CHANGELOG.md)
 

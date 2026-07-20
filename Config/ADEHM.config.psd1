@@ -70,9 +70,21 @@
         # The attachment remains the full browser-grade report.
         EmbedReportInBody = $true
 
+        # Three SMTP authentication scenarios are supported:
+        #   1. Anonymous internal relay (no credentials expected at all,
+        #      e.g. an IP-based allow list): set Anonymous = $true below.
+        #      Neither -Credential nor -MailCredential is needed for mail.
+        #   2. Relay that trusts the AD service account: leave
+        #      Anonymous = $false (default) and pass only -Credential to
+        #      Start-ADEHM.ps1 — it is reused for SMTP automatically.
+        #   3. External provider with its own identity (Gmail, Office 365
+        #      consumer, ...): leave Anonymous = $false and pass
+        #      -MailCredential separately from -Credential.
+        Anonymous         = $false
+
         # The SMTP service account password is NEVER stored in clear text in
         # this file. Use Windows Credential Manager, a group Managed Service
-        # Account (gMSA), or pass -Credential to Start-ADEHM.ps1.
+        # Account (gMSA), or pass -MailCredential to Start-ADEHM.ps1.
         # See Docs/PERMISSIONS.md.
         CredentialTarget  = 'ADEHM-SMTP-Account'
     }

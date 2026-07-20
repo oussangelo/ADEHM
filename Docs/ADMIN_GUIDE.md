@@ -68,7 +68,22 @@ new DC receives the WMI/SCM/service ACEs, then restart WinRM on it.
 4. Add matching columns in `ADEHM.HTML.psm1` if the result belongs in the
    report.
 
-## 7. Email rendering
+## 7. SMTP authentication scenarios
+
+Three scenarios are supported; pick one via `Config.Mail.Anonymous` and the
+credential parameters passed to `Start-ADEHM.ps1`:
+
+| Scenario | `Mail.Anonymous` | Command |
+|---|---|---|
+| Anonymous internal relay (IP allow list, no auth expected) | `$true` | `.\Start-ADEHM.ps1 -Credential $adCred` (mail needs nothing extra) |
+| Relay that trusts the AD service account | `$false` (default) | `.\Start-ADEHM.ps1 -Credential $adCred` (reused for SMTP automatically) |
+| External provider with its own identity (Gmail, Office 365 consumer, ...) | `$false` | `.\Start-ADEHM.ps1 -Credential $adCred -MailCredential $mailCred` |
+
+The log always states which identity (if any) was used for SMTP —
+`[Mail] SMTP identity: ...` — useful to confirm the right path was taken
+when testing a new relay.
+
+## 8. Email rendering
 
 The mail body uses a dedicated rendering (`New-ADEHMEmailReport`): HTML
 tables + inline styles, faithful even in Outlook desktop (Word engine).
@@ -77,7 +92,7 @@ typographic finesse are absent from the body — a Word-engine limitation.
 Set `EmbedReportInBody = $false` for a plain-text body with attachment
 only.
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Probable cause | Action |
 |---|---|---|

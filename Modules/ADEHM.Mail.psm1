@@ -56,7 +56,14 @@ function Send-ADEHMReport {
         $smtp = New-Object System.Net.Mail.SmtpClient($Config.Mail.SmtpServer, $Config.Mail.Port)
         $smtp.EnableSsl = [bool]$Config.Mail.UseSsl
 
-        if ($Credential) {
+        if ($Config.Mail.Anonymous) {
+            # Explicit anonymous relay (e.g. IP-based allow list): send no
+            # authentication at all. UseDefaultCredentials would still
+            # offer the current Windows identity to the server, which some
+            # anonymous relays do not expect.
+            Write-ADEHMLog -Level DEBUG -Module Mail -Message 'SMTP: anonymous relay (Mail.Anonymous = $true), no credentials sent.'
+        }
+        elseif ($Credential) {
             $smtp.Credentials = $Credential.GetNetworkCredential()
         }
         else {
