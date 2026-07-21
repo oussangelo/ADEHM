@@ -1,6 +1,6 @@
 @{
     RootModule        = 'ADEHM.psm1'
-    ModuleVersion     = '1.0.2'
+    ModuleVersion     = '1.0.3'
     GUID              = '216930bd-1250-4625-8d41-09b686a44356'
     Author            = 'Angelo OUSSATCHEDJI'
     Copyright         = '(c) 2026 Angelo OUSSATCHEDJI. MIT License.'
@@ -17,7 +17,7 @@
             Tags         = @('ActiveDirectory', 'Monitoring', 'DomainController', 'WinRM', 'CIM', 'HealthCheck', 'Windows', 'sysadmin', 'Report')
             LicenseUri   = 'https://github.com/oussangelo/ADEHM/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/oussangelo/ADEHM'
-            ReleaseNotes = 'Bug fixes: config path resolution for standalone config files, and cross-module function visibility when run via Install-Module.'
+            ReleaseNotes = 'Bug fixes: config path resolution for standalone config files, cross-module function visibility, mail/AD credential separation, and anonymous SMTP relay support. See CHANGELOG.md.'
         }
     }
 }

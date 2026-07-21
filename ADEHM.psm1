@@ -22,20 +22,25 @@ function Start-ADEHM {
 
         .EXAMPLE
         Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -DemoMode
+
+        .EXAMPLE
+        Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential $adCred -MailCredential $mailCred
     #>
     [CmdletBinding()]
     param(
         [string]$ConfigPath,
         [System.Management.Automation.PSCredential]$Credential,
+        [System.Management.Automation.PSCredential]$MailCredential,
         [switch]$DemoMode
     )
 
     $scriptPath = Join-Path $PSScriptRoot 'Start-ADEHM.ps1'
 
     $params = @{}
-    if ($ConfigPath) { $params.ConfigPath = $ConfigPath }
-    if ($Credential) { $params.Credential = $Credential }
-    if ($DemoMode)   { $params.DemoMode   = $true }
+    if ($ConfigPath)     { $params.ConfigPath     = $ConfigPath }
+    if ($Credential)     { $params.Credential     = $Credential }
+    if ($MailCredential) { $params.MailCredential = $MailCredential }
+    if ($DemoMode)       { $params.DemoMode       = $true }
 
     & $scriptPath @params
 }

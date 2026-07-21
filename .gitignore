@@ -6,3 +6,9 @@ Archive/
 
 # Local configuration copies
 Config/*.local.psd1
+
+# Personal working-copy configs (never commit real SMTP/DC settings)
+*-old.psd1
+*-old.ps1
+*.prod.psd1
+my.config.psd1

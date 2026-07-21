@@ -1,6 +1,6 @@
 # Changelog — ADEHM
 
-## [1.0.2] — 2026-07
+## [1.0.3] — 2026-07
 
 ### Fixed
 - **Config path resolution**: a standalone configuration file (e.g. copied
