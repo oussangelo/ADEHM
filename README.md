@@ -40,8 +40,10 @@ ADEHM sits in between:
 
 Each DC gets an overall status — OK / Warning / Critical / Offline — with
 configurable thresholds.
-
+ 
 ## Quick start
+
+mkdir C:\ADEHM    ## Create your folder to start.
 
 **Option A — PowerShell Gallery (recommended):**
 
@@ -63,9 +65,8 @@ Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
 **Option B — Git clone:**
 
 ```powershell
-mkdir C:\Prod-ADEHM    ## Create your folder
-git clone https://github.com/oussangelo/ADEHM.git C:\Prod-ADEHM\
-cd C:\Prod-ADEHM\ADEHM
+git clone https://github.com/oussangelo/ADEHM.git C:\ADEHM\
+cd C:\ADEHM
 notepad .\Config\ADEHM.config.psd1     # DCs, thresholds, SMTP
 .\Start-ADEHM.ps1 -DemoMode             # dry run, simulated data
 .\Start-ADEHM.ps1 -Credential (Get-Credential)
