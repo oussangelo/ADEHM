@@ -57,7 +57,8 @@ Install-Module ADEHM
 # would nest the source folder one level too deep.
 $moduleBase = (Get-Module ADEHM -ListAvailable | Select-Object -First 1).ModuleBase
 Copy-Item "$moduleBase\Config\ADEHM.config.psd1" C:\ADEHM\my.config.psd1
-Copy-Item "$moduleBase\Assets\*" C:\ADEHM\Assets -Recurse -Force
+mkdir C:\ADEHM\Assets\
+Copy-Item "$moduleBase\Assets\*" C:\ADEHM\Assets\ -Recurse -Force
 Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -DemoMode        # dry run, simulated data
 Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
 ```
