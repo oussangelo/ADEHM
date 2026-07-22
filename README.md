@@ -63,8 +63,9 @@ Start-ADEHM -ConfigPath C:\ADEHM\my.config.psd1 -Credential (Get-Credential)
 **Option B — Git clone:**
 
 ```powershell
-git clone https://github.com/oussangelo/ADEHM.git
-cd ADEHM
+mkdir C:\Prod-ADEHM    ## Create your folder
+git clone https://github.com/oussangelo/ADEHM.git C:\Prod-ADEHM\
+cd C:\Prod-ADEHM\ADEHM
 notepad .\Config\ADEHM.config.psd1     # DCs, thresholds, SMTP
 .\Start-ADEHM.ps1 -DemoMode             # dry run, simulated data
 .\Start-ADEHM.ps1 -Credential (Get-Credential)
