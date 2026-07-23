@@ -98,12 +98,35 @@ in the Administration Guide.
 - [Architecture](Docs/ARCHITECTURE.md)
 - [Changelog](CHANGELOG.md)
 
-## Roadmap
+## What's next
 
-- v1.1 — AD replication health, FSMO roles, Global Catalog, LDAP/LDAPS
-- v1.2 — DNS health, zone checks, aging & scavenging
-- v1.3 — Windows event log analysis, critical AD events
-- v2.0 — Web dashboard, REST API, execution history
+- **v1.1** *(next release)* — Plugin system, AD replication health, FSMO roles,  Global Catalog, LDAP/LDAPS bind and certificate health
+- **v1.2** — DNS health, zone checks, aging & scavenging
+- **v1.3** — Windows event log analysis, critical AD events
+- **v1.4** — Parallel collection, structured export (JSON/CSV) for
+  Grafana, Splunk and Power BI
+
+**The monitoring engine and every check listed above are MIT and stay MIT.**
+That applies to what is already released and to everything on this list — it will not be moved behind a licence later.
+
+This project ships regularly rather than by roadmap; see
+[Releases](../../releases) for what actually landed.
+
+### Writing your own checks
+
+v1.1 introduces a plugin system: drop an `ADEHM.Plugin.*.psm1` file into the plugin folder and it is picked up on the next run — no core changes, no rebuild, no entry in any registry. A defective plugin is logged and skipped; it cannot interrupt a monitoring run or prevent the report from being delivered.
+
+The contract will be documented in the Plugin Development Guide shipped with that release, and will stay stable within a major version.
+
+Plugins are yours. Publish them, keep them internal, or sell them.
+
+### Commercial add-ons
+
+**AD Enterprise Suite — Security Pack** is a paid plugin bundle covering AD security and hygiene: krbtgt password age, lingering objects, SYSVOL replication backlog, privileged group drift, trust health, uncovered subnets, time synchronisation. First release is planned alongside v1.2.
+
+It is licensed per year and versioned independently of this module — it runs on ADEHM 1.1 and later, and new checks are added to it over time rather than tied to engine releases. A pack purchased today keeps working as the engine moves forward.
+
+None of these checks appear on the free roadmap above, and none will be removed from the free product to make room for them. The engine that runs them is, and remains, the MIT one in this repository.
 
 ## License
 
